@@ -3,19 +3,23 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Virtual env
+# Virtual environment
 seg-env/
-
-# Models
-models/
-
-# Outputs
-outputs/
-outputs_reduced/
-outputs_weighted_overlay/
 
 # Dataset
 data/
 
-# OS
+# Large model files
+models/
+*.pth
+
+# Ignore bulk outputs
+outputs/
+outputs_reduced/
+outputs_weighted_overlay/
+
+# Keep only curated examples
+!sample_outputs/
+
+# OS files
 .DS_Store
