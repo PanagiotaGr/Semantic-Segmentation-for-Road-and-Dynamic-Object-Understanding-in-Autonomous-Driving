@@ -178,3 +178,13 @@ Panagiota Grosdouli
 ## License
 
 This project is for academic and research purposes.
+
+## Citation
+
+```bibtex
+@software{Grosdouli_Semantic_Segmentation_2026,
+  author = {Grosdouli, Panagiota},
+  title = {Semantic Segmentation for Road and Dynamic Object Understanding in Autonomous Driving},
+  year = {2026},
+  url = {[https://github.com/PanagiotaGr/Semantic-Segmentation-for-Road-and-Dynamic-Object-Understanding-in-Autonomous-Driving](https://github.com/PanagiotaGr/Semantic-Segmentation-for-Road-and-Dynamic-Object-Understanding-in-Autonomous-Driving)}
+}
