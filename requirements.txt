@@ -1,0 +1,24 @@
+# Core deep learning
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch
+torchvision
+
+# Segmentation architectures and transformer models
+segmentation-models-pytorch
+transformers
+
+# Computer vision and data processing
+opencv-python
+Pillow
+albumentations
+numpy
+pandas
+scikit-learn
+
+# Metrics, plots, and experiment analysis
+matplotlib
+tqdm
+
+# Notebook/demo support
+jupyter
+ipykernel
