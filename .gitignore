@@ -1,17 +1,46 @@
-# Python
+# Python cache
 __pycache__/
+*.py[cod]
+*$py.class
 *.pyc
 *.pyo
 
-# Virtual environment
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
 seg-env/
 
-# Dataset
-data/
+# Jupyter
+.ipynb_checkpoints/
 
-# Large model files
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Dataset folders
+data/
+datasets/
+CamVid/
+camvid/
+
+# Large model files and checkpoints
 models/
+checkpoints/
+*.pt
 *.pth
+*.ckpt
+
+# Experiment trackers
+runs/
+wandb/
 
 # Ignore bulk outputs
 outputs/
@@ -20,6 +49,3 @@ outputs_weighted_overlay/
 
 # Keep only curated examples
 !sample_outputs/
-
-# OS files
-.DS_Store
