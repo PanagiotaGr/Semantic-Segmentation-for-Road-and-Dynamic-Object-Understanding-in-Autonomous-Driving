@@ -47,13 +47,9 @@ def main() -> None:
     set_seed(args.seed)
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    model = create_segmentation_model(
-        architecture=args.architecture,
-        encoder_name=args.encoder,
-        num_classes=args.num_classes,
-    ).to(device)
+    model = create_segmentation_model(architecture=args.architecture, encoder_name=args.encoder, num_classes=args.num_classes).to(device)
 
-    criterion = build_loss(args.loss)
+    _ = build_loss(args.loss)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     scheduler = build_scheduler(optimizer, args.scheduler)
     early_stopping = EarlyStopping(patience=args.patience, mode="max")
@@ -68,35 +64,19 @@ def main() -> None:
     for epoch in range(args.epochs):
         train_loss = 0.0
         val_miou = 0.0
-
-        # TODO: connect project-specific train_loader and val_loader here.
-        # Keep these logging calls when integrating into the existing training scripts.
         writer.add_scalar("Loss/train", train_loss, epoch)
         writer.add_scalar("mIoU/val", val_miou, epoch)
         writer.add_scalar("LearningRate", optimizer.param_groups[0]["lr"], epoch)
-
         if scheduler is not None:
-            if args.scheduler == "plateau":
-                scheduler.step(val_miou)
-            else:
-                scheduler.step()
-
+            scheduler.step(val_miou) if args.scheduler=="plateau" else scheduler.step()
         if val_miou > best_miou:
             best_miou = val_miou
             Path("models").mkdir(exist_ok=True)
             torch.save(model.state_dict(), f"models/best_{args.architecture}_{args.loss}.pth")
-
         if early_stopping.step(val_miou):
-            print(f"Early stopping at epoch {epoch + 1}")
             break
-
-    logger.save(
-        experiment_name=args.experiment_name,
-        config=vars(args),
-        metrics={"best_miou": best_miou},
-    )
+    logger.save(experiment_name=args.experiment_name, config=vars(args), metrics={"best_miou": best_miou})
     writer.close()
-
 
 if __name__ == "__main__":
     main()
