@@ -1,9 +1,23 @@
 cff-version: 1.2.0
-message: "If you use this segmentation framework or the comparative study, please cite it as follows."
+title: "Semantic Segmentation for Road and Dynamic Object Understanding in Autonomous Driving"
+message: "If you use this repository, please cite it using the metadata from this file."
+type: software
 authors:
   - family-names: "Grosdouli"
     given-names: "Panagiota"
-title: "Semantic Segmentation for Road and Dynamic Object Understanding in Autonomous Driving"
 version: 1.0.0
 date-released: 2026-03-27
+year: 2026
+repository-code: "https://github.com/PanagiotaGr/Semantic-Segmentation-for-Road-and-Dynamic-Object-Understanding-in-Autonomous-Driving"
 url: "https://github.com/PanagiotaGr/Semantic-Segmentation-for-Road-and-Dynamic-Object-Understanding-in-Autonomous-Driving"
+keywords:
+  - semantic segmentation
+  - autonomous driving
+  - computer vision
+  - road scene understanding
+  - CamVid
+  - PyTorch
+  - U-Net
+  - DeepLabV3+
+  - SegFormer
+abstract: "This repository presents a comparative semantic segmentation study for urban road-scene understanding in autonomous driving. It evaluates CNN-based and transformer-based architectures under a reduced safety-critical label space and reports both mIoU and class-wise IoU results."
