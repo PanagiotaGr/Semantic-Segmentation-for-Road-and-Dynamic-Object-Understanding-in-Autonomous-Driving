@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Semantic segmentation for road and dynamic object understanding in autonomous driving." />
+  <title>Semantic Segmentation for Autonomous Driving</title>
+  <style>
+    :root {
+      --bg: #070b14;
+      --panel: rgba(255,255,255,0.075);
+      --panel-strong: rgba(255,255,255,0.12);
+      --text: #f8fafc;
+      --muted: #b7c3d7;
+      --accent: #38bdf8;
+      --accent-2: #22c55e;
+      --accent-3: #f97316;
+      --line: rgba(255,255,255,0.15);
+      --shadow: 0 28px 80px rgba(0,0,0,0.42);
+      color-scheme: dark;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 8%, rgba(56,189,248,0.20), transparent 28rem),
+        radial-gradient(circle at 85% 10%, rgba(34,197,94,0.14), transparent 30rem),
+        radial-gradient(circle at 60% 85%, rgba(249,115,22,0.11), transparent 28rem),
+        linear-gradient(180deg, #070b14 0%, #0b1220 46%, #05070d 100%);
+      line-height: 1.6;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      border-bottom: 1px solid var(--line);
+      background: rgba(7, 11, 20, 0.78);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 900; letter-spacing: -0.02em; }
+
+    .mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      color: #04111f;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 12px 34px rgba(56,189,248,0.24);
+      font-weight: 950;
+    }
+
+    .navlinks { display: flex; align-items: center; gap: 18px; color: var(--muted); font-size: 0.95rem; }
+
+    .lang-switch {
+      display: flex;
+      gap: 6px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+    }
+
+    .lang-switch button {
+      cursor: pointer;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      padding: 7px 11px;
+      border-radius: 999px;
+      font-weight: 850;
+    }
+
+    .lang-switch button.active { color: #04111f; background: var(--accent); }
+
+    .hero {
+      padding: 96px 0 66px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(330px, 0.92fr);
+      gap: 48px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid rgba(56,189,248,0.28);
+      border-radius: 999px;
+      color: var(--accent);
+      background: rgba(56,189,248,0.09);
+      font-weight: 850;
+      font-size: 0.88rem;
+    }
+
+    h1 {
+      margin: 20px 0 18px;
+      max-width: 860px;
+      font-size: clamp(2.65rem, 6.8vw, 6.25rem);
+      line-height: 0.92;
+      letter-spacing: -0.075em;
+    }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #fff, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .lead { max-width: 720px; color: var(--muted); font-size: clamp(1.08rem, 2vw, 1.32rem); }
+
+    .cta-row { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 30px; }
+
+    .button {
+      min-height: 46px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 18px;
+      border-radius: 999px;
+      font-weight: 900;
+      border: 1px solid var(--line);
+    }
+
+    .button.primary { color: #04111f; border: none; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+    .button.secondary { background: rgba(255,255,255,0.065); }
+
+    .vision-card {
+      position: relative;
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .frame {
+      position: relative;
+      min-height: 330px;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 24px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, #182235 0%, #1d293b 40%, #111827 40%, #111827 100%);
+    }
+
+    .skyline { position: absolute; inset: 48px 0 auto; height: 72px; background: linear-gradient(90deg, transparent, rgba(148,163,184,0.22), transparent); }
+    .road { position: absolute; inset: 44% 0 0; background: linear-gradient(180deg, #1f2937, #030712); clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%); }
+    .lane { position: absolute; left: 50%; top: 47%; width: 4px; height: 44%; background: repeating-linear-gradient(180deg, #f8fafc 0 16px, transparent 16px 34px); opacity: 0.75; transform: translateX(-50%); }
+    .sidewalk-l { position: absolute; left: 0; bottom: 0; width: 30%; height: 52%; background: rgba(249,115,22,0.28); clip-path: polygon(0 0, 55% 0, 100% 100%, 0 100%); }
+    .sidewalk-r { position: absolute; right: 0; bottom: 0; width: 30%; height: 52%; background: rgba(249,115,22,0.28); clip-path: polygon(45% 0, 100% 0, 100% 100%, 0 100%); }
+    .car { position: absolute; left: 57%; top: 55%; width: 78px; height: 42px; border-radius: 12px 12px 8px 8px; background: rgba(34,197,94,0.85); box-shadow: 0 0 0 4px rgba(34,197,94,0.18); }
+    .ped { position: absolute; left: 35%; top: 49%; width: 18px; height: 58px; border-radius: 999px 999px 6px 6px; background: rgba(56,189,248,0.9); box-shadow: 0 0 0 4px rgba(56,189,248,0.16); }
+
+    .legend {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 10px;
+    }
+
+    .legend span { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.92rem; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+
+    section { padding: 64px 0; }
+
+    .section-title { max-width: 850px; margin-bottom: 26px; }
+    .section-title h2 { margin: 0 0 12px; font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1; letter-spacing: -0.05em; }
+    .section-title p { color: var(--muted); font-size: 1.08rem; }
+
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 18px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 18px; }
+
+    .card {
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--panel);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.2);
+    }
+    .card h3 { margin: 0 0 8px; font-size: 1.22rem; }
+    .card p { margin: 0; color: var(--muted); }
+
+    .tag {
+      display: inline-flex;
+      margin-bottom: 14px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: var(--accent);
+      background: rgba(56,189,248,0.10);
+      border: 1px solid rgba(56,189,248,0.18);
+      font-size: 0.78rem;
+      font-weight: 900;
+    }
+
+    .scoreboard { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; }
+    .score { padding: 20px; border-radius: 22px; border: 1px solid var(--line); background: rgba(255,255,255,0.07); }
+    .score strong { display: block; font-size: clamp(1.75rem, 4vw, 2.8rem); line-height: 1; color: var(--accent); letter-spacing: -0.05em; }
+    .score span { display: block; margin-top: 8px; color: var(--muted); }
+
+    .metric-table { width: 100%; border-collapse: collapse; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: rgba(255,255,255,0.055); }
+    .metric-table th, .metric-table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--line); }
+    .metric-table th { color: var(--accent); font-size: 0.88rem; }
+    .metric-table td { color: var(--muted); }
+    .metric-table tr:last-child td { border-bottom: 0; }
+
+    .pipeline { display: grid; gap: 14px; }
+    .step { display: grid; grid-template-columns: 42px 1fr; gap: 14px; padding: 18px; border: 1px solid var(--line); border-radius: 20px; background: rgba(255,255,255,0.055); }
+    .num { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 14px; color: #04111f; background: var(--accent); font-weight: 950; }
+
+    .code { padding: 18px; border: 1px solid rgba(255,255,255,0.12); border-radius: 18px; background: #020617; color: #dbeafe; overflow-x: auto; font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.92rem; }
+
+    footer { padding: 44px 0; border-top: 1px solid var(--line); color: var(--muted); }
+
+    [data-lang="el"] .en, [data-lang="en"] .el { display: none; }
+
+    @media (max-width: 900px) {
+      .hero, .grid-2, .grid-3, .scoreboard { grid-template-columns: 1fr; }
+      .navlinks a { display: none; }
+      .hero { padding-top: 64px; }
+    }
+  </style>
+</head>
+<body data-lang="en">
+  <header>
+    <div class="shell nav">
+      <a class="brand" href="#top" aria-label="Project home"><span class="mark">SS</span><span>Road Scene Segmentation</span></a>
+      <nav class="navlinks" aria-label="Primary navigation">
+        <a href="#method"><span class="en">Method</span><span class="el">Μέθοδος</span></a>
+        <a href="#results"><span class="en">Results</span><span class="el">Αποτελέσματα</span></a>
+        <a href="#experiments"><span class="en">Experiments</span><span class="el">Πειράματα</span></a>
+        <a href="https://github.com/PanagiotaGr/Semantic-Segmentation-for-Road-and-Dynamic-Object-Understanding-in-Autonomous-Driving">GitHub</a>
+        <div class="lang-switch" aria-label="Language selector">
+          <button type="button" id="btn-en" class="active" onclick="setLanguage('en')">EN</button>
+          <button type="button" id="btn-el" onclick="setLanguage('el')">EL</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <div class="shell hero">
+      <div>
+        <span class="eyebrow"><span class="en">Autonomous-driving perception · CamVid semantic segmentation</span><span class="el">Αντίληψη αυτόνομης οδήγησης · Semantic segmentation στο CamVid</span></span>
+        <h1><span class="gradient-text">Semantic segmentation</span> for road and dynamic object understanding</h1>
+        <p class="lead en">A research project on urban road-scene understanding, comparing CNN and transformer segmentation models under a safety-oriented 5-class label formulation.</p>
+        <p class="lead el">Ερευνητικό έργο για κατανόηση αστικών σκηνών δρόμου, με σύγκριση CNN και transformer μοντέλων semantic segmentation σε safety-oriented διατύπωση 5 κλάσεων.</p>
+        <div class="cta-row">
+          <a class="button primary" href="#results"><span class="en">View key results</span><span class="el">Δες τα βασικά αποτελέσματα</span></a>
+          <a class="button secondary" href="https://github.com/PanagiotaGr/Semantic-Segmentation-for-Road-and-Dynamic-Object-Understanding-in-Autonomous-Driving"><span class="en">Open repository</span><span class="el">Άνοιγμα repository</span></a>
+        </div>
+      </div>
+
+      <aside class="vision-card" aria-label="Stylized segmentation preview">
+        <div class="frame">
+          <div class="skyline"></div>
+          <div class="road"></div>
+          <div class="lane"></div>
+          <div class="sidewalk-l"></div>
+          <div class="sidewalk-r"></div>
+          <div class="car"></div>
+          <div class="ped"></div>
+        </div>
+        <div class="legend">
+          <span><i class="dot" style="background:#111827"></i>Road</span>
+          <span><i class="dot" style="background:#f97316"></i>Sidewalk</span>
+          <span><i class="dot" style="background:#22c55e"></i>Vehicle</span>
+          <span><i class="dot" style="background:#38bdf8"></i>Pedestrian</span>
+        </div>
+      </aside>
+    </div>
+
+    <section id="overview">
+      <div class="shell">
+        <div class="section-title">
+          <h2><span class="en">Research focus</span><span class="el">Ερευνητική εστίαση</span></h2>
+          <p class="en">The project studies how architecture choice, label-space design and loss weighting affect segmentation quality for safety-critical autonomous-driving categories.</p>
+          <p class="el">Το έργο μελετά πώς η επιλογή αρχιτεκτονικής, η διαμόρφωση των κλάσεων και η στάθμιση της loss επηρεάζουν την ποιότητα segmentation σε κρίσιμες κατηγορίες αυτόνομης οδήγησης.</p>
+        </div>
+        <div class="grid-3">
+          <article class="card"><span class="tag">Dataset</span><h3>CamVid</h3><p class="en">Benchmark road-scene dataset used for semantic segmentation experiments.</p><p class="el">Benchmark dataset σκηνών δρόμου για πειράματα semantic segmentation.</p></article>
+          <article class="card"><span class="tag">Labels</span><h3>5 safety classes</h3><p class="en">Background, road, sidewalk, vehicle and pedestrian.</p><p class="el">Background, road, sidewalk, vehicle και pedestrian.</p></article>
+          <article class="card"><span class="tag">Models</span><h3>CNNs + Transformer</h3><p class="en">U-Net, DeepLabV3+ and SegFormer are compared under the same task formulation.</p><p class="el">Σύγκριση U-Net, DeepLabV3+ και SegFormer στην ίδια πειραματική διατύπωση.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="method">
+      <div class="shell grid-2">
+        <div class="section-title">
+          <h2><span class="en">Methodology</span><span class="el">Μεθοδολογία</span></h2>
+          <p class="en">The workflow converts CamVid annotations into a compact safety-oriented label space, trains multiple segmentation architectures and evaluates both global and class-wise performance.</p>
+          <p class="el">Η ροή εργασίας μετατρέπει τα CamVid annotations σε συμπαγές safety-oriented label space, εκπαιδεύει διαφορετικές αρχιτεκτονικές segmentation και αξιολογεί συνολική και ανά-κλάση απόδοση.</p>
+        </div>
+        <div class="pipeline">
+          <div class="step"><div class="num">1</div><div><strong class="en">Dataset preparation</strong><strong class="el">Προετοιμασία dataset</strong><p class="en">Resize images, map labels and prepare train/validation/test splits.</p><p class="el">Resize εικόνων, αντιστοίχιση labels και προετοιμασία train/validation/test splits.</p></div></div>
+          <div class="step"><div class="num">2</div><div><strong class="en">Model training</strong><strong class="el">Εκπαίδευση μοντέλων</strong><p class="en">Train U-Net, DeepLabV3+ and SegFormer using cross-entropy variants.</p><p class="el">Εκπαίδευση U-Net, DeepLabV3+ και SegFormer με παραλλαγές cross-entropy.</p></div></div>
+          <div class="step"><div class="num">3</div><div><strong class="en">Quantitative evaluation</strong><strong class="el">Ποσοτική αξιολόγηση</strong><p class="en">Report mIoU and class-wise IoU for each architecture and loss setup.</p><p class="el">Αναφορά mIoU και class-wise IoU για κάθε αρχιτεκτονική και loss setup.</p></div></div>
+          <div class="step"><div class="num">4</div><div><strong class="en">Qualitative analysis</strong><strong class="el">Ποιοτική ανάλυση</strong><p class="en">Inspect masks and overlays to analyze boundaries, confusion and small-object failures.</p><p class="el">Έλεγχος masks και overlays για όρια αντικειμένων, συγχύσεις και αποτυχίες σε μικρά αντικείμενα.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="results">
+      <div class="shell">
+        <div class="section-title">
+          <h2><span class="en">Key results</span><span class="el">Βασικά αποτελέσματα</span></h2>
+          <p class="en">The reduced 5-class U-Net achieved the strongest overall performance, while pedestrian segmentation remained the most challenging class.</p>
+          <p class="el">Το U-Net με μειωμένο label space 5 κλάσεων πέτυχε την καλύτερη συνολική επίδοση, ενώ το pedestrian segmentation παρέμεινε η πιο δύσκολη κλάση.</p>
+        </div>
+        <div class="scoreboard">
+          <div class="score"><strong>0.7240</strong><span>Best mIoU · U-Net 5-class CE</span></div>
+          <div class="score"><strong>0.7132</strong><span>DeepLabV3+ 5-class CE</span></div>
+          <div class="score"><strong>0.6135</strong><span>SegFormer 5-class CE</span></div>
+          <div class="score"><strong>0.2596</strong><span>Pedestrian IoU challenge</span></div>
+        </div>
+        <br />
+        <table class="metric-table">
+          <thead><tr><th>Model</th><th>Label setup</th><th>Loss</th><th>mIoU</th></tr></thead>
+          <tbody>
+            <tr><td>U-Net</td><td>12 classes</td><td>Cross-Entropy</td><td>0.4797</td></tr>
+            <tr><td>U-Net</td><td>5 classes</td><td>Cross-Entropy</td><td><strong>0.7240</strong></td></tr>
+            <tr><td>DeepLabV3+</td><td>5 classes</td><td>Cross-Entropy</td><td>0.7132</td></tr>
+            <tr><td>U-Net</td><td>5 classes</td><td>Weighted Cross-Entropy</td><td>0.6823</td></tr>
+            <tr><td>SegFormer</td><td>5 classes</td><td>Cross-Entropy</td><td>0.6135</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="experiments">
+      <div class="shell grid-2">
+        <div>
+          <div class="section-title">
+            <h2><span class="en">Experiment protocol</span><span class="el">Πειραματικό πρωτόκολλο</span></h2>
+            <p class="en">A presentation-ready evaluation should include model comparison, label-space ablation, loss-function ablation and class-wise error analysis.</p>
+            <p class="el">Μια σωστή παρουσίαση πρέπει να περιλαμβάνει σύγκριση μοντέλων, ablation για label space, ablation για loss function και ανάλυση σφαλμάτων ανά κλάση.</p>
+          </div>
+          <div class="grid-2">
+            <article class="card"><h3>Architecture comparison</h3><p class="en">U-Net vs DeepLabV3+ vs SegFormer.</p><p class="el">Σύγκριση U-Net, DeepLabV3+ και SegFormer.</p></article>
+            <article class="card"><h3>Label-space ablation</h3><p class="en">12-class versus reduced 5-class formulation.</p><p class="el">Σύγκριση 12 κλάσεων με μειωμένη διατύπωση 5 κλάσεων.</p></article>
+            <article class="card"><h3>Loss ablation</h3><p class="en">Cross-entropy versus weighted cross-entropy.</p><p class="el">Cross-entropy έναντι weighted cross-entropy.</p></article>
+            <article class="card"><h3>Safety classes</h3><p class="en">Focus on road, vehicle and pedestrian reliability.</p><p class="el">Έμφαση σε αξιοπιστία road, vehicle και pedestrian.</p></article>
+          </div>
+        </div>
+        <div class="card">
+          <h3><span class="en">Reproducible workflow</span><span class="el">Αναπαραγώγιμη ροή</span></h3>
+          <pre class="code">pip install -r requirements.txt
+python train_*.py
+python predict_*.py</pre>
+          <p class="en">Next improvement: add a unified experiment runner that trains/evaluates all model configurations and exports summary tables automatically.</p>
+          <p class="el">Επόμενη βελτίωση: ενιαίος experiment runner που εκπαιδεύει/αξιολογεί όλα τα configurations και εξάγει αυτόματα summary tables.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell">
+      <strong>Semantic Segmentation for Autonomous Driving</strong><br />
+      <span class="en">Road and dynamic object understanding through safety-oriented semantic segmentation.</span>
+      <span class="el">Κατανόηση δρόμου και δυναμικών αντικειμένων μέσω safety-oriented semantic segmentation.</span>
+    </div>
+  </footer>
+
+  <script>
+    function setLanguage(lang) {
+      document.body.dataset.lang = lang;
+      document.documentElement.lang = lang;
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+      document.getElementById('btn-el').classList.toggle('active', lang === 'el');
+      try { localStorage.setItem('segmentation-site-lang', lang); } catch (e) {}
+    }
+    try {
+      const saved = localStorage.getItem('segmentation-site-lang');
+      if (saved === 'el' || saved === 'en') setLanguage(saved);
+    } catch (e) {}
+  </script>
+</body>
+</html>
