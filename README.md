@@ -11,6 +11,35 @@ This repository presents a semantic segmentation study for urban road-scene unde
 
 The central research question is how architecture choice, label-space formulation, and loss weighting affect segmentation quality for both static road-scene structures and dynamic objects such as vehicles and pedestrians.
 
+The repository is also being extended into a PhD-level research framework on **world-aware and continually adaptive semantic scene understanding for autonomous driving**.
+
+---
+
+## PhD Research Direction
+
+Working thesis title:
+
+> **Towards World-Aware and Continually Adaptive Semantic Scene Understanding for Autonomous Driving**
+
+The proposed research program extends the current segmentation baseline through eight research axes:
+
+1. reproducible semantic-segmentation baselines,
+2. foundation-model adaptation,
+3. uncertainty-aware segmentation,
+4. temporal and 4D segmentation,
+5. multi-task learning with depth, motion, and future prediction,
+6. continual learning across cities, weather, and datasets,
+7. explainable and language-guided segmentation,
+8. scene graphs and world-model representations.
+
+Detailed planning documents are available in:
+
+- [`docs/phd_proposal.md`](docs/phd_proposal.md)
+- [`docs/research_roadmap.md`](docs/research_roadmap.md)
+- [`docs/experiment_matrix.md`](docs/experiment_matrix.md)
+- [`research_modules/`](research_modules/)
+- [`configs/phd_research_program.yaml`](configs/phd_research_program.yaml)
+
 ---
 
 ## Research Contributions
@@ -21,6 +50,7 @@ The central research question is how architecture choice, label-space formulatio
 * Evaluation of class imbalance handling through weighted cross-entropy loss.
 * Quantitative evaluation using mIoU and class-wise IoU.
 * Qualitative assessment using prediction masks, overlays, and performance plots.
+* PhD-level roadmap for uncertainty-aware, temporal, continual, multi-task, and world-aware autonomous-driving perception.
 
 ---
 
@@ -112,6 +142,8 @@ The project evaluates segmentation quality using:
 * **Mean Intersection over Union (mIoU)**: the main metric for global segmentation performance.
 * **Class-wise IoU**: used to identify strengths and weaknesses per semantic category.
 * **Qualitative overlays**: used to visually assess boundary quality, object detection, and class confusion.
+
+Future PhD extensions will additionally evaluate calibration, uncertainty quality, temporal consistency, continual-learning forgetting, cross-domain robustness, dynamic-object false negatives, and scene-graph consistency.
 
 ---
 
@@ -206,6 +238,9 @@ The results show that model selection should be considered together with label d
 * Add temporal consistency for video-based segmentation.
 * Extend the project toward multi-task learning, such as segmentation and lane detection.
 * Benchmark inference speed for real-time autonomous-driving deployment.
+* Add uncertainty estimation for risk-aware perception.
+* Add continual-learning protocols across datasets, weather, and cities.
+* Convert segmentation outputs into scene graphs and world-model states.
 
 ---
 
@@ -215,6 +250,14 @@ The results show that model selection should be considered together with label d
 semantic_seg_project/
 ├── train_*.py
 ├── predict_*.py
+├── configs/
+│   └── phd_research_program.yaml
+├── docs/
+│   ├── phd_proposal.md
+│   ├── research_roadmap.md
+│   └── experiment_matrix.md
+├── research_modules/
+├── templates/
 ├── results/
 ├── plots/
 ├── sample_outputs/
@@ -234,7 +277,9 @@ For reproducible experiments, future versions should document:
 * random seed,
 * GPU/CPU hardware,
 * checkpoint naming convention,
-* dataset preprocessing and augmentation details.
+* dataset preprocessing and augmentation details,
+* experiment configuration,
+* failure-case analysis.
 
 ---
 
