@@ -256,7 +256,8 @@ semantic_seg_project/
 ├── docs/
 │   ├── phd_proposal.md
 │   ├── research_roadmap.md
-│   └── experiment_matrix.md
+│   ├── experiment_matrix.md
+│   └── ci_pages_note.md
 ├── research_modules/
 ├── templates/
 ├── results/
