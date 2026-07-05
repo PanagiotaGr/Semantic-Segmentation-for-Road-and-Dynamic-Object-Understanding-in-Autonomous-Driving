@@ -23,6 +23,7 @@ jobs:
           test -f docs/phd_proposal.md
           test -f docs/research_roadmap.md
           test -f docs/experiment_matrix.md
+          test -f docs/ci_pages_note.md
           test -f configs/phd_research_program.yaml
           test -f templates/experiment_report_template.md
           test -f templates/failure_case_analysis.md
