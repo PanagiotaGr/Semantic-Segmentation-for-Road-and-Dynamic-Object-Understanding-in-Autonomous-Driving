@@ -1,37 +1,33 @@
-name: Deploy GitHub Pages
+name: Documentation Check
 
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  docs-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      - name: Check documentation files
+        run: |
+          test -f README.md
+          test -f docs/phd_proposal.md
+          test -f docs/research_roadmap.md
+          test -f docs/experiment_matrix.md
+          test -f configs/phd_research_program.yaml
 
-      - name: Upload static site
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Explain Pages status
+        run: |
+          echo "Documentation files are present."
+          echo "GitHub Pages deployment is disabled because Pages is not enabled/configured for this repository."
+          echo "Do not use ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true; it does not fix the Pages configuration error."
+          echo "To publish later, enable GitHub Pages in repository settings and restore the Pages deployment steps."
