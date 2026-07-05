@@ -37,6 +37,7 @@ Detailed planning documents are available in:
 - [`docs/phd_proposal.md`](docs/phd_proposal.md)
 - [`docs/research_roadmap.md`](docs/research_roadmap.md)
 - [`docs/experiment_matrix.md`](docs/experiment_matrix.md)
+- [`docs/ci_pages_note.md`](docs/ci_pages_note.md)
 - [`research_modules/`](research_modules/)
 - [`configs/phd_research_program.yaml`](configs/phd_research_program.yaml)
 
