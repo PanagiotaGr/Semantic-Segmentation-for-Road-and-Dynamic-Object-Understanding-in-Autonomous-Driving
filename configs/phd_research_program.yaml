@@ -1,0 +1,138 @@
+project:
+  name: world_aware_autonomous_driving_segmentation
+  thesis_title: Towards World-Aware and Continually Adaptive Semantic Scene Understanding for Autonomous Driving
+  base_task: semantic_segmentation
+  safety_classes:
+    - background
+    - road
+    - sidewalk
+    - vehicle
+    - pedestrian
+
+baseline:
+  dataset: CamVid
+  models:
+    - unet_resnet34
+    - deeplabv3plus
+    - segformer_mit_b0
+  metrics:
+    - miou
+    - class_iou
+    - pedestrian_iou
+    - vehicle_iou
+
+research_axes:
+  robust_baselines:
+    enabled: true
+    questions:
+      - How do architecture, resolution, loss design, and label-space design affect safety-critical segmentation?
+    experiments:
+      - higher_resolution_training
+      - class_balanced_sampling
+      - focal_dice_tversky_lovasz_losses
+
+  foundation_models:
+    enabled: true
+    questions:
+      - Do pretrained vision backbones improve cross-domain autonomous-driving segmentation?
+    adaptation_strategies:
+      - frozen_encoder
+      - partial_finetuning
+      - full_finetuning
+      - adapters
+      - lora
+
+  uncertainty:
+    enabled: true
+    questions:
+      - Can the model identify when its segmentation is unreliable?
+    methods:
+      - entropy_maps
+      - mc_dropout
+      - deep_ensembles
+      - temperature_scaling
+      - evidential_segmentation
+    metrics:
+      - expected_calibration_error
+      - negative_log_likelihood
+      - uncertainty_error_correlation
+
+  temporal_segmentation:
+    enabled: true
+    questions:
+      - Does temporal memory improve dynamic-object segmentation and reduce flicker?
+    methods:
+      - feature_fusion
+      - optical_flow_propagation
+      - recurrent_memory
+      - temporal_transformer
+    metrics:
+      - temporal_consistency
+      - flicker_rate
+      - dynamic_object_stability
+
+  multi_task_learning:
+    enabled: true
+    questions:
+      - Does geometry or motion supervision improve semantic segmentation?
+    tasks:
+      - semantic_segmentation
+      - depth_estimation
+      - optical_flow
+      - motion_segmentation
+      - future_segmentation
+
+  continual_learning:
+    enabled: true
+    questions:
+      - Can the model adapt to new cities, weather, or datasets without forgetting?
+    methods:
+      - replay
+      - knowledge_distillation
+      - adapters
+      - lora
+      - pseudo_labeling
+    metrics:
+      - average_accuracy
+      - forgetting_score
+      - backward_transfer
+      - forward_transfer
+
+  explainability_language:
+    enabled: true
+    questions:
+      - Can dense perception be explained and guided by language?
+    outputs:
+      - saliency_maps
+      - uncertainty_overlays
+      - text_explanations
+      - language_conditioned_masks
+
+  scene_graph_world_model:
+    enabled: true
+    questions:
+      - Can segmentation outputs become structured world states for driving intelligence?
+    representations:
+      - object_region_graph
+      - spatial_relation_graph
+      - motion_relation_graph
+      - risk_aware_world_state
+
+recommended_datasets:
+  initial:
+    - CamVid
+  expansion:
+    - Cityscapes
+    - BDD100K
+    - ACDC
+    - Mapillary_Vistas
+    - WildDash
+    - KITTI_360
+
+publication_plan:
+  paper_1: Safety-oriented semantic segmentation baseline and label-space analysis
+  paper_2: Foundation-model adaptation for robust road-scene segmentation
+  paper_3: Uncertainty-aware dynamic-object segmentation under domain shift
+  paper_4: Temporal multi-task segmentation for video-based scene understanding
+  paper_5: Continual semantic segmentation across cities and weather
+  paper_6: Scene graphs and world models for explainable autonomous-driving perception
