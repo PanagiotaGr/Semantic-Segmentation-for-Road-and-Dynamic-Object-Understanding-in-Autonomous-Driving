@@ -1,0 +1,31 @@
+uncertainty_analysis:
+  enabled: true
+  input_type: logits
+  num_classes: 5
+  class_names:
+    - background
+    - road
+    - sidewalk
+    - vehicle
+    - pedestrian
+  outputs:
+    save_prediction_mask: true
+    save_confidence_map: true
+    save_entropy_map: true
+    save_normalized_entropy_map: true
+    save_risk_map: true
+    save_high_risk_mask: true
+  risk_thresholds:
+    low: 0.25
+    medium: 0.50
+    high: 0.75
+  mc_dropout:
+    enabled: false
+    stochastic_passes: 8
+  safety_analysis:
+    focus_classes:
+      - vehicle
+      - pedestrian
+    inspect_boundaries: true
+    inspect_false_negatives: true
+    inspect_high_confidence_errors: true
