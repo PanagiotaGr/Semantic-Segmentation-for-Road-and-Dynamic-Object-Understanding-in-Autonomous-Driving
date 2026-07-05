@@ -1,4 +1,4 @@
-name: Documentation Check
+name: Documentation and Research Utility Check
 
 on:
   push:
@@ -24,12 +24,19 @@ jobs:
           test -f docs/research_roadmap.md
           test -f docs/experiment_matrix.md
           test -f docs/ci_pages_note.md
+          test -f docs/uncertainty_usage.md
           test -f configs/phd_research_program.yaml
           test -f templates/experiment_report_template.md
           test -f templates/failure_case_analysis.md
 
+      - name: Check research utility files
+        run: |
+          test -f src/research/__init__.py
+          test -f src/research/uncertainty.py
+          test -f tests/test_uncertainty.py
+
       - name: Summarize Pages status
         run: |
-          echo "Documentation files are present."
+          echo "Documentation and research utility files are present."
           echo "GitHub Pages deployment is intentionally disabled in this workflow because the repository does not currently have Pages enabled for GitHub Actions deployment."
           echo "To publish a site later, enable Pages in repository settings and restore the configure/upload/deploy Pages steps."
