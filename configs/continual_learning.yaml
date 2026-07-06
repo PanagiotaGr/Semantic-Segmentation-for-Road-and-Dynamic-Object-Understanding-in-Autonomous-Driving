@@ -1,0 +1,28 @@
+continual_learning:
+  enabled: true
+  protocol: dataset_sequence
+  domains:
+    - camvid
+    - cityscapes
+    - bdd100k
+    - acdc
+  evaluation_matrix_shape: [training_step, evaluation_domain]
+
+metrics:
+  average_accuracy: true
+  forgetting_score: true
+  retained_performance: true
+  forward_transfer: true
+
+methods:
+  naive_finetuning: true
+  replay_memory: false
+  knowledge_distillation: false
+  adapters: false
+  lora: false
+
+reporting:
+  save_per_domain_scores: true
+  save_per_step_scores: true
+  save_forgetting_curve: true
+  save_transfer_matrix: true
