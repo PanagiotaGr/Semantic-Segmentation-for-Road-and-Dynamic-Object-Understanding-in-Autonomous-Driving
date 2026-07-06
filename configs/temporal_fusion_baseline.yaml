@@ -1,0 +1,57 @@
+experiment:
+  name: temporal_fusion_baseline
+  task: video_semantic_segmentation
+  description: Baseline recipe for sequence-based temporal semantic segmentation.
+
+dataset:
+  type: temporal_sequence
+  sequence_length: 3
+  stride: 1
+  image_shape: [frames, channels, height, width]
+  mask_shape: [frames, height, width]
+  target_frame: center
+
+model:
+  encoder: existing_single_frame_encoder
+  feature_fusion:
+    mode: mean
+    alternatives:
+      - mean
+      - sum
+      - concat
+  segmentation_head:
+    type: temporal_fusion_head
+    num_classes: 5
+    hidden_channels: 64
+
+loss:
+  segmentation:
+    type: cross_entropy
+  temporal_consistency:
+    enabled: true
+    type: probability_consistency
+    weight: 0.1
+  combined_objective: segmentation_loss + temporal_weight * temporal_consistency_loss
+
+metrics:
+  segmentation:
+    - miou
+    - class_iou
+    - pixel_accuracy
+  temporal:
+    - frame_change_rate
+    - consecutive_frame_iou
+    - temporal_stability
+    - temporal_change_frequency
+
+outputs:
+  save_predictions: true
+  save_temporal_report: true
+  save_difference_maps: true
+  save_failure_cases: true
+
+ablation_plan:
+  sequence_lengths: [2, 3, 5]
+  fusion_modes: [mean, sum, concat]
+  temporal_weights: [0.0, 0.05, 0.1, 0.2]
+  target_frames: [last, center]
