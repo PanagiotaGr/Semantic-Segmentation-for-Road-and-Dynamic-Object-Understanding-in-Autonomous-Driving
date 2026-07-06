@@ -1,0 +1,25 @@
+temporal_segmentation:
+  enabled: true
+  sequence_length: 3
+  frame_stride: 1
+  input_shape: [sequence, channels, height, width]
+  label_shape: [sequence, height, width]
+
+metrics:
+  frame_change_rate: true
+  consecutive_frame_iou: true
+  temporal_stability: true
+  dynamic_object_focus:
+    - vehicle
+    - pedestrian
+
+future_modeling:
+  feature_fusion: concat
+  temporal_memory: false
+  optical_flow_guidance: false
+  temporal_transformer: false
+
+reporting:
+  save_per_frame_predictions: true
+  save_temporal_difference_maps: true
+  save_stability_summary: true
