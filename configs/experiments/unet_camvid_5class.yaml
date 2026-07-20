@@ -33,12 +33,16 @@ training:
   epochs: 50
   batch_size: 4
   num_workers: 4
+  sampling:
+    strategy: weighted
+    beta: 0.9999
   optimizer:
     name: adam
     learning_rate: 0.001
   loss:
     name: cross_entropy
     ignore_index: 255
+    auto_class_weights: true
   monitor: validation_miou
   monitor_mode: max
 
