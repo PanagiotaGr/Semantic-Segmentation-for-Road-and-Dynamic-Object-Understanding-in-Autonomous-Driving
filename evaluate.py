@@ -10,10 +10,36 @@ import torch
 from torch.utils.data import DataLoader
 
 from src.framework.config import load_experiment_config
-from src.framework.data import SegmentationFolderDataset
+from src.framework.data import build_dataset
 from src.framework.losses import build_loss
 from src.framework.models import build_model
 from src.framework.training import run_epoch
+from src.framework.visualization import save_prediction_overlay
+
+
+def export_predictions(
+    model: torch.nn.Module,
+    loader: DataLoader,
+    device: torch.device,
+    output_dir: Path,
+    limit: int,
+) -> None:
+    """Write qualitative prediction panels for the first evaluation samples."""
+    model.eval()
+    written = 0
+    with torch.no_grad():
+        for images, _ in loader:
+            logits = model(images.to(device))
+            predictions = logits.argmax(dim=1).cpu()
+            for image, prediction in zip(images, predictions):
+                save_prediction_overlay(
+                    image,
+                    prediction,
+                    output_dir / f"prediction_{written:04d}.png",
+                )
+                written += 1
+                if written >= limit:
+                    return
 
 
 def main() -> None:
@@ -22,14 +48,13 @@ def main() -> None:
     parser.add_argument("--checkpoint", required=True)
     parser.add_argument("--split", default="test")
     parser.add_argument("--output-dir", default="evaluation")
+    parser.add_argument("--prediction-limit", type=int, default=16)
     args = parser.parse_args()
 
     config = load_experiment_config(args.config).raw
     data_cfg = config["data"]
     split = str(data_cfg.get(f"{args.split}_split", args.split))
-    dataset = SegmentationFolderDataset(
-        Path(data_cfg["root"]), split, tuple(int(v) for v in data_cfg["image_size"])
-    )
+    dataset = build_dataset(config, split, training=False)
     loader = DataLoader(dataset, batch_size=int(config["training"]["batch_size"]), shuffle=False)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = build_model(config).to(device)
@@ -44,8 +69,17 @@ def main() -> None:
     names = data_cfg.get("class_names", [str(i) for i in range(len(metrics["class_iou"]))])
     with (output / "class_metrics.csv").open("w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)
-        writer.writerow(["class", "iou"])
-        writer.writerows(zip(names, metrics["class_iou"]))
+        writer.writerow(["class", "iou", "precision", "recall"])
+        writer.writerows(
+            zip(
+                names,
+                metrics["class_iou"],
+                metrics.get("class_precision", []),
+                metrics.get("class_recall", []),
+            )
+        )
+    if args.prediction_limit > 0:
+        export_predictions(model, loader, device, output / "predictions", args.prediction_limit)
     print(json.dumps(metrics, indent=2))
 
 
