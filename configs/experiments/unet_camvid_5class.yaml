@@ -1,0 +1,38 @@
+experiment:
+  name: unet_camvid_5class
+  seed: 42
+  deterministic: true
+
+data:
+  dataset: camvid
+  root: data/CamVid
+  train_split: train
+  validation_split: val
+  test_split: test
+  image_size: [256, 256]
+  num_classes: 5
+  class_names: [background, road, sidewalk, vehicle, pedestrian]
+
+model:
+  name: unet
+  encoder: resnet34
+  encoder_weights: imagenet
+  in_channels: 3
+  num_classes: 5
+
+training:
+  epochs: 50
+  batch_size: 4
+  num_workers: 4
+  optimizer:
+    name: adam
+    learning_rate: 0.001
+  loss:
+    name: cross_entropy
+  monitor: validation_miou
+  monitor_mode: max
+
+output:
+  root: outputs
+  save_best_checkpoint: true
+  save_last_checkpoint: true
