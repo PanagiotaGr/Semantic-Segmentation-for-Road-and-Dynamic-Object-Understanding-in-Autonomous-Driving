@@ -13,6 +13,8 @@ from src.framework.config import load_experiment_config
 from src.framework.data import build_dataset
 from src.framework.losses import build_loss
 from src.framework.models import build_model
+from src.framework.reporting import concatenate_predictions, save_confusion_matrix_plot
+from src.framework.research_metrics import boundary_iou, class_binary_metrics
 from src.framework.training import run_epoch
 from src.framework.visualization import save_prediction_overlay
 
@@ -49,6 +51,7 @@ def main() -> None:
     parser.add_argument("--split", default="test")
     parser.add_argument("--output-dir", default="evaluation")
     parser.add_argument("--prediction-limit", type=int, default=16)
+    parser.add_argument("--boundary-dilation", type=int, default=1)
     args = parser.parse_args()
 
     config = load_experiment_config(args.config).raw
@@ -62,6 +65,22 @@ def main() -> None:
     model.load_state_dict(checkpoint["model"] if "model" in checkpoint else checkpoint)
     criterion = build_loss(config).to(device)
     metrics = run_epoch(model, loader, criterion, device, int(data_cfg["num_classes"]))
+
+    predictions, targets = concatenate_predictions(model, loader, device)
+    ignore_index = int(data_cfg.get("ignore_index", 255))
+    pedestrian_class_id = int(data_cfg.get("pedestrian_class_id", 4))
+    metrics["boundary_iou"] = boundary_iou(
+        predictions,
+        targets,
+        ignore_index=ignore_index,
+        dilation=args.boundary_dilation,
+    )
+    metrics["pedestrian"] = class_binary_metrics(
+        predictions,
+        targets,
+        class_id=pedestrian_class_id,
+        ignore_index=ignore_index,
+    )
 
     output = Path(args.output_dir)
     output.mkdir(parents=True, exist_ok=True)
@@ -78,6 +97,17 @@ def main() -> None:
                 metrics.get("class_recall", []),
             )
         )
+    with (output / "pedestrian_metrics.csv").open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(["metric", "value"])
+        writer.writerows(metrics["pedestrian"].items())
+
+    save_confusion_matrix_plot(
+        metrics["confusion_matrix"],
+        names,
+        output / "confusion_matrix.png",
+        normalize=True,
+    )
     if args.prediction_limit > 0:
         export_predictions(model, loader, device, output / "predictions", args.prediction_limit)
     print(json.dumps(metrics, indent=2))

@@ -12,6 +12,7 @@ data:
   image_size: [256, 256]
   num_classes: 5
   class_names: [background, road, sidewalk, vehicle, pedestrian]
+  pedestrian_class_id: 4
   ignore_index: 255
   # CamVid 12-class ids: sky, building, pole, road, pavement, tree,
   # sign-symbol, fence, car, pedestrian, bicyclist, unlabeled.
