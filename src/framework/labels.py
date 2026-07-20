@@ -8,7 +8,7 @@ import numpy as np
 
 CAMVID_12_TO_5 = {
     0: 0,   # sky -> background
-    1: 1,   # building -> background-like static scene
+    1: 0,   # building -> background
     2: 0,   # pole -> background
     3: 1,   # road -> road
     4: 2,   # pavement -> sidewalk
