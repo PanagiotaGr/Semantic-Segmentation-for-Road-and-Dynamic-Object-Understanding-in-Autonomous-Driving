@@ -36,13 +36,22 @@ training:
   sampling:
     strategy: weighted
     beta: 0.9999
+  rare_crop:
+    enabled: true
+    size: [192, 192]
+    class_ids: [3, 4]
+    min_fraction: 0.01
+    attempts: 12
   optimizer:
     name: adam
     learning_rate: 0.001
   loss:
-    name: cross_entropy
+    name: ce_dice_boundary
     ignore_index: 255
     auto_class_weights: true
+    ce_weight: 0.5
+    region_weight: 0.8
+    boundary_kernel_size: 3
   monitor: validation_miou
   monitor_mode: max
 
